@@ -57,7 +57,6 @@ int main()
   // On charge un bsp (un niveau) en particulier :
   is::IAnimatedMesh *mesh_bsp = smgr->getMesh("mario.bsp");
   is::IAnimatedMesh *mesh_bsp2 = smgr->getMesh("20kdm2.bsp");
-  vector
 
 
   node = smgr->addOctreeSceneNode(mesh_bsp->getMesh(0), nullptr, -1, 1024);
