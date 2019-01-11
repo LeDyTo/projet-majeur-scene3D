@@ -272,6 +272,7 @@ int main()
 
         ScreenChange = randNum < probaFight;
     }
+    
     if (ScreenChange)
     {
         node->setVisible(false);
