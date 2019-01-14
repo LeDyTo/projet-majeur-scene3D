@@ -1,12 +1,14 @@
 #include "MyEventReceiver.hpp"
+#include "gui_ids.h"
 
+namespace ig = irr::gui;
 
 bool MyEventReceiver::OnEvent(const irr::SEvent &event)
   {
 
 
 
-    /********** Clavier et souris ***********/
+    /********** Clavier, souris et gui(menu et fenetre) ***********/
     if (!perso1) return false;
     switch (event.EventType)
     {
@@ -14,6 +16,8 @@ bool MyEventReceiver::OnEvent(const irr::SEvent &event)
         return keyboard(event);
       case irr::EET_MOUSE_INPUT_EVENT:
         return mouse(event);
+      case irr::EET_GUI_EVENT:
+        return gui_manage(event);
       default:;
     }
 
@@ -21,9 +25,6 @@ bool MyEventReceiver::OnEvent(const irr::SEvent &event)
     joystick1.perso = perso1;
     joystick1.cam = cam1;
     joystick1.controllerEvent(event);
-
-
-
 
     return false;
   }
@@ -137,8 +138,52 @@ bool MyEventReceiver::mouse(const irr::SEvent &event)
 }
 
 
+/*------------------------------------------------------------------------*\
+ * fenetre et menu                                                        *
+\*------------------------------------------------------------------------*/
+bool MyEventReceiver::gui_manage(const irr::SEvent &event)
+{
+  if (!node) return false;
+  switch(event.GUIEvent.EventType)
+  {
+    // Gestion des menus de la barre de menu
+    case ig::EGET_MENU_ITEM_SELECTED:
+      {
+        ig::IGUIContextMenu *menu = (ig::IGUIContextMenu*)event.GUIEvent.Caller;
+        irr::s32 item = menu->getSelectedItem();
+        irr::s32 id = menu->getItemCommandId(item);
 
+        switch(id)
+        {
+          case MENU_NEW_GAME:
+            // Faire quelque chose ici !
+            break;
+          case MENU_QUIT:
+            exit(0);
+          case MENU_COMMANDES:
+            gui->addMessageBox(L"Commandes", L"En exploration, ....");
+            break;
+        }
+      }
+      break;
+  }
+}
 
+/**************************************************************************\
+ * MyEventReceiver::set_node                                                *
+\**************************************************************************/
+void MyEventReceiver::set_node(irr::scene::ISceneNode *n)
+{
+  node = n;
+}
+
+/**************************************************************************\
+ * MyEventReceiver::set_gui                                                 *
+\**************************************************************************/
+void MyEventReceiver::set_gui(irr::gui::IGUIEnvironment *g)
+{
+  gui = g;
+}
 
 MyEventReceiver::MyEventReceiver():
     perso1(nullptr), button_pressed(false)

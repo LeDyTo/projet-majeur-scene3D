@@ -22,14 +22,16 @@ struct MyEventReceiver : irr::IEventReceiver
 private:
 
   //attributs :
-
+  irr::gui::IGUIEnvironment *gui;
+  irr::scene::ISceneNode *node;
   //methodes :
 
 public:
 
   //constructeur(s) :
   MyEventReceiver();
-
+  void set_gui(irr::gui::IGUIEnvironment *gui);
+  void set_node(irr::scene::ISceneNode *node);
   //attributs :
   irr::scene::IAnimatedMeshSceneNode * perso1; //correspondra au perso principal; on pourra par la suite rajouter d'autres persos
 
@@ -50,9 +52,7 @@ public:
 
   bool keyboard(const irr::SEvent &event);
   bool mouse(const irr::SEvent &event);
-
-
+  bool gui_manage(const irr::SEvent &event);
 
 };
-
 #endif

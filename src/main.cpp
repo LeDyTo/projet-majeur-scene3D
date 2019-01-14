@@ -3,6 +3,7 @@
 #include <irrlicht.h>
 
 #include "../lib/MyEventReceiver.hpp"
+#include "../lib/gui_ids.h"
 
 #include <vector>
 
@@ -19,13 +20,53 @@ inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISce
                            scene::ITriangleSelector *selector, scene::ISceneNodeAnimator *anim, is::IAnimatedMeshSceneNode *perso,
                            core::vector3df radius, scene::ISceneNodeAnimator *animcam, scene::ICameraSceneNode* camera);
 
+
+
+/*===========================================================================*\
+ * create_menu                                                               *
+\*===========================================================================*/
+static void create_menu(ig::IGUIEnvironment *gui)
+{
+  ig::IGUIContextMenu *submenu;
+
+  // une entrée principale :
+  ig::IGUIContextMenu *menu = gui->addMenu();
+  menu->addItem(L"menu", -1, true, true);
+
+  // Le contenu du menu :
+  submenu = menu->getSubMenu(0);
+  submenu->addItem(L"New game...", MENU_NEW_GAME);
+  submenu->addSeparator();
+  submenu->addItem(L"Quit", MENU_QUIT);
+  submenu->addSeparator();
+  submenu->addItem(L"commandes", MENU_COMMANDES);
+}
+
+/*===========================================================================*\
+ * create_window for items                                                           *
+\*===========================================================================*/
+static void create_window(ig::IGUIEnvironment *gui)
+{
+  // La fenêtre
+  ig::IGUIWindow *window = gui->addWindow(ic::rect<s32>(420,25, 620,460), false, L"objets");
+
+}
+
+
+/*===========================================================================*\
+ * main                                                             *
+\*===========================================================================*/
 int main()
 {
   /// Le gestionnaire d'événements ///
   MyEventReceiver receiver;
 
-  float randNum;
-  bool ScreenChange = false;
+
+  ////variables aléatoires pour lancement combat////
+    float probaFight = 0.0005;
+    bool isFight = false;
+    float randNum;
+    bool ScreenChange = false;
 
   // Création de la fenêtre et du système de rendu.
   int W = 1080; int H = 720;
@@ -78,14 +119,24 @@ int main()
   perso->setMD2Animation(is::EMAT_STAND);
   perso->setMaterialTexture(0, driver->getTexture("data/tris/blue_texture.pcx"));
   perso->setRotation(ic::vector3df(0, 90, 0));
-
+  receiver.set_gui(gui);
+  receiver.set_node(node);
 
   const core::aabbox3d<f32>& box = perso->getBoundingBox();
   core::vector3df radius = box.MaxEdge - box.getCenter();
   scene::ISceneNodeAnimator *anim;
   scene::ISceneNodeAnimator *anim2;
 
+/////police de caractere///////
+  ig::IGUISkin* skin = gui->getSkin();
+  ig::IGUIFont* font = gui->getFont("data/menu/fontlucida.png");
+  skin->setFont(font);
 
+  // La barre de menu
+  create_menu(gui);
+
+  // fenêtre des objets
+  create_window(gui);
 
   ///////////// Camera //////////////
 
@@ -147,9 +198,6 @@ int main()
 //           return true;
 //  }
 
-////variables aléatoires pour lancement combat////
-  float probaFight = 0.0005;
-  bool isFight = false;
   srand (time(NULL));
 ///// while loop /////
 
@@ -202,6 +250,13 @@ int main()
   return 0;
 }
 
+
+
+
+/*===========================================================================*\
+ * update scene                                                               *
+\*===========================================================================*/
+
 inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISceneManager *smgr, std::vector<is::IAnimatedMesh*> meshVector,
                            scene::ITriangleSelector *selector, scene::ISceneNodeAnimator *anim, is::IAnimatedMeshSceneNode *perso,
                            core::vector3df radius, scene::ISceneNodeAnimator *animcam, scene::ICameraSceneNode* camera)
@@ -238,9 +293,6 @@ inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISce
                                                  ic::vector3df(0, 0, 0));  // décalage du centre
 
     perso->addAnimator(anim);
-
-
-
 
 
     animcam = smgr->createCollisionResponseAnimator(selector,
