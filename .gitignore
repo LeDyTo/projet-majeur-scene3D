@@ -34,4 +34,4 @@
 # autres
 build
 data
-*.autosave
+*.cpp.autosave
