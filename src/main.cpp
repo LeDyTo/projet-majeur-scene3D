@@ -15,7 +15,9 @@ namespace is = irr::scene;
 namespace iv = irr::video;
 namespace ig = irr::gui;
 
-
+inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISceneManager *smgr, std::vector<is::IAnimatedMesh*> meshVector,
+                           scene::ITriangleSelector *selector, scene::ISceneNodeAnimator *anim, is::IAnimatedMeshSceneNode *perso,
+                           core::vector3df radius, scene::ISceneNodeAnimator *animcam, scene::ICameraSceneNode* camera);
 
 int main()
 {
@@ -23,7 +25,7 @@ int main()
   MyEventReceiver receiver;
 
   float randNum;
-  bool ScreenChange = true;
+  bool ScreenChange = false;
 
   // Création de la fenêtre et du système de rendu.
   int W = 1080; int H = 720;
@@ -48,7 +50,6 @@ int main()
   is::IMeshSceneNode *node2;
 
 
-
   /// on charge le decor ///
   // Ajout de l'archive qui contient entre autres un niveau complet
   device->getFileSystem()->addFileArchive("data/maps/mario.pk3");
@@ -61,7 +62,7 @@ int main()
   meshVector.push_back(mesh_bsp);
   meshVector.push_back(mesh_bsp2);
 
-  node = smgr->addOctreeSceneNode(mesh_bsp->getMesh(0), nullptr, -1, 1024);
+  node = smgr->addOctreeSceneNode(meshVector[0]->getMesh(0), nullptr, -1, 1024);
   // Translation pour que nos personnages soient dans le décor
   node->setPosition(core::vector3df(0,-104,0));
 
@@ -79,6 +80,11 @@ int main()
   perso->setRotation(ic::vector3df(0, 90, 0));
 
 
+  const core::aabbox3d<f32>& box = perso->getBoundingBox();
+  core::vector3df radius = box.MaxEdge - box.getCenter();
+  scene::ISceneNodeAnimator *anim;
+  scene::ISceneNodeAnimator *anim2;
+
 
 
   ///////////// Camera //////////////
@@ -86,6 +92,8 @@ int main()
   scene::ICameraSceneNode* camera =
   smgr->addCameraSceneNode(perso);
   camera->setPosition(ic::vector3df(-50, 30, 0));
+  scene::ISceneNodeAnimator *animcam;
+  scene::ISceneNodeAnimator *animcam2;
 
 
 
@@ -94,36 +102,10 @@ int main()
   // Création du triangle selector
   scene::ITriangleSelector *selector;
   scene::ITriangleSelector *selector2;
-  selector = smgr->createOctreeTriangleSelector(node->getMesh(), node);
-  node->setTriangleSelector(selector);
-
-  const core::aabbox3d<f32>& box = perso->getBoundingBox();
-  core::vector3df radius = box.MaxEdge - box.getCenter();
-  scene::ISceneNodeAnimator *anim;
-  scene::ISceneNodeAnimator *anim2;
-  anim = smgr->createCollisionResponseAnimator(selector,
-                                               perso,  // Le noeud que l'on veut gérer
-                                               radius, // "rayons" de la caméra
-                                               ic::vector3df(0, -10, 0),  // gravité
-                                               ic::vector3df(0, 0, 0));  // décalage du centre
-
-  perso->addAnimator(anim);
 
 
 
-
-
-  scene::ISceneNodeAnimator *animcam;
-  scene::ISceneNodeAnimator *animcam2;
-  animcam = smgr->createCollisionResponseAnimator(selector,
-                                               camera,
-                                               ic::vector3df(30, 50, 30),
-                                               ic::vector3df(0, 0, 0),  // gravité
-                                               ic::vector3df(0, 0, 0));  // décalage du centre
-
-  camera->addAnimator(animcam);
-
-
+  parametreScene(ScreenChange, node, smgr, meshVector, selector, anim, perso, radius, animcam, camera);
 
 
 
@@ -188,8 +170,45 @@ int main()
 
 
 
-
 ////// images 2D ////
+
+//  iv::IImageLoader *gifLoader;
+//  driver->addExternalImageLoader(gifLoader);
+
+
+///// barre de HP ////
+//  irr::io::IReadFile *health;
+//  iv::IImage *hpBar = gifLoader->loadImage(health);
+  iv::ITexture *hpTexture = driver->getTexture("data/perso/hp_png/frame-01.png");
+
+//  for(int i = 0; i < 59; ++i)
+//  {
+//     health = irr::io::createReadFile("data/perso/hp_png/frame-01.png");
+//     hpBar = gifLoader->loadImage(health);
+//     hpTexture[0] = driver->addTexture("hpTexture",hpBar);
+//  }
+
+//// attribution de place pour la barre de H////
+  ig::IGUIImage *hpBox = gui->addImage(ic::rect<s32>(10,10,  50,50)); hpBox->setScaleImage(true);
+
+/////////////fonction inline lecture de GIF//////////////////
+
+//  inline std::vector<irr::video::IImage*>  load(const char*file)
+//  {
+//           irr::core::array<irr::video::IImage*> calque;
+//           int i, ExtCode;
+//           GifFileType *File;
+//           File = DGifOpenFileName(file);
+
+//           for(int i = 0; i < File->ImageCount; ++i);
+//           {
+//               irr::video::IImage *tmp = driver->createImageFromData(irr::video::ECF_A8R8G8B8,irr::core::dimension2d<irr::u32>((irr::u32)File->SWidth,(irr::u32)File->SHeight),(void*)(File->SColorMap[i].Colors),false);
+//               calque.push_back(tmp);
+//           }
+
+//           DGifCloseFile(File);
+//           return true;
+//  }
 
 //// Chargement des textures pour les chiffres
 //iv::ITexture *digits[10];
@@ -255,7 +274,7 @@ int main()
 
 
 
-    bool isFight = false;
+
 
 ////variables aléatoires pour lancement combat////
   float probaFight = 0.0005;
@@ -266,45 +285,27 @@ int main()
   {
     driver->beginScene(true, true, iv::SColor(100,150,200,255));
 
-    if (!isFight)
-    {
-        randNum = rand()/(float)RAND_MAX;
 
-        ScreenChange = randNum < probaFight;
-    }
+    randNum = rand()/(float)RAND_MAX;
+
+    ScreenChange = randNum < probaFight;
 
     if (ScreenChange)
     {
-        node->setVisible(false);
-        std::cout << randNum << std::endl;
-        isFight = true;
+        std::cout<<"ok"<<std::endl;
 
-        node2 = smgr->addOctreeSceneNode(meshVector[(int) ScreenChange]->getMesh(0), nullptr, 0, 1024);
+        node->setVisible(false);
+
+        node2 = smgr->addOctreeSceneNode(meshVector[1]->getMesh(0), nullptr, 0, 1024);
         // Translation pour que nos personnages soient dans le décor
         node2->setPosition(core::vector3df(-1350, -130, -1400));
-        ScreenChange = false;
-
-        selector2 = smgr->createOctreeTriangleSelector(node2->getMesh(), node2);
-        node2->setTriangleSelector(selector);
-
-        anim2 = smgr->createCollisionResponseAnimator(selector2,
-                                                     perso,  // Le noeud que l'on veut gérer
-                                                     radius, // "rayons" de la caméra
-                                                     ic::vector3df(0, -10, 0),  // gravité
-                                                     ic::vector3df(0, 0, 0));  // décalage du centre
 
         perso->removeAnimator(anim);
-        perso->addAnimator(anim2);
+        camera->removeAnimator(animcam);
 
 
-        animcam2 = smgr->createCollisionResponseAnimator(selector2,
-                                                     camera,
-                                                     ic::vector3df(30, 50, 30),
-                                                     ic::vector3df(0, 0, 0),  // gravité
-                                                     ic::vector3df(0, 0, 0));  // décalage du centre
-
-        camera->addAnimator(animcam);
-        camera->removeAnimator(animcam2);
+        parametreScene(ScreenChange, node2, smgr, meshVector, selector2, anim2, perso, radius, animcam2, camera);
+        ScreenChange = false;
     }
 
     camera->setTarget(perso->getPosition());
@@ -382,6 +383,10 @@ int main()
 //    tvieBox->setImage(tvie);
 //    vie_1->setImage(digits[(health / 1) % 10]);
 
+
+////dessin de la barre de HP////
+
+    hpBox->setImage(hpTexture);
 
     // Dessin de la GUI :
     gui->drawAll();
@@ -467,4 +472,56 @@ int main()
   device->drop();
 
   return 0;
+}
+
+inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISceneManager *smgr, std::vector<is::IAnimatedMesh*> meshVector,
+                           scene::ITriangleSelector *selector, scene::ISceneNodeAnimator *anim, is::IAnimatedMeshSceneNode *perso,
+                           core::vector3df radius, scene::ISceneNodeAnimator *animcam, scene::ICameraSceneNode* camera)
+{
+    std::cout<<"ok par"<<std::endl;
+
+//    if (node)
+//    {
+//        node->setVisible(false);
+//    }
+
+//    if (screenChange)
+//    {
+//    node = smgr->addOctreeSceneNode(meshVector[1]->getMesh(0), nullptr, 0, 1024);
+//    // Translation pour que nos personnages soient dans le décor
+//    node->setPosition(core::vector3df(-1350, -130, -1400));
+//    }
+
+//    else
+//    {
+//        node = smgr->addOctreeSceneNode(meshVector[0]->getMesh(0), nullptr, -1, 1024);
+//        // Translation pour que nos personnages soient dans le décor
+//        node->setPosition(core::vector3df(0,-104,0));
+//    }
+
+    selector = smgr->createOctreeTriangleSelector(node->getMesh(), node);
+    node->setTriangleSelector(selector);
+
+
+    anim = smgr->createCollisionResponseAnimator(selector,
+                                                 perso,  // Le noeud que l'on veut gérer
+                                                 radius, // "rayons" de la caméra
+                                                 ic::vector3df(0, -10, 0),  // gravité
+                                                 ic::vector3df(0, 0, 0));  // décalage du centre
+
+    perso->addAnimator(anim);
+
+
+
+
+
+    animcam = smgr->createCollisionResponseAnimator(selector,
+                                                 camera,
+                                                 ic::vector3df(30, 50, 30),
+                                                 ic::vector3df(0, 0, 0),  // gravité
+                                                 ic::vector3df(0, 0, 0));  // décalage du centre
+
+    camera->addAnimator(animcam);
+
+
 }
