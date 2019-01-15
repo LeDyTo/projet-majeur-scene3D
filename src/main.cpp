@@ -6,6 +6,7 @@
 #include "../lib/gui_ids.h"
 
 #include <vector>
+#include <string>
 
 /**************** Namespaces ****************/
 
@@ -15,6 +16,9 @@ namespace ic = irr::core;
 namespace is = irr::scene;
 namespace iv = irr::video;
 namespace ig = irr::gui;
+
+int hp;
+int hpmax = 200;
 
 inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISceneManager *smgr, std::vector<is::IAnimatedMesh*> meshVector,
                            scene::ITriangleSelector *selector, scene::ISceneNodeAnimator *anim, is::IAnimatedMeshSceneNode *perso,
@@ -43,7 +47,7 @@ static void create_menu(ig::IGUIEnvironment *gui)
 }
 
 /*===========================================================================*\
- * create_window for items                                                           *
+ * create_window for items                                                   *
 \*===========================================================================*/
 static void create_window(ig::IGUIEnvironment *gui)
 {
@@ -73,6 +77,36 @@ int main()
   IrrlichtDevice *device = createDevice(iv::EDT_OPENGL,
                                         ic::dimension2d<u32>(W, H),
                                         16, false, false, false, &receiver);
+
+  iv::IVideoDriver  *driver = device->getVideoDriver();
+  is::ISceneManager *smgr = device->getSceneManager();
+  ig::IGUIEnvironment *gui  = device->getGUIEnvironment();
+  is::IMeshSceneNode *node;
+  is::IMeshSceneNode *node2;
+
+
+
+  //liste des images barre de hp
+//  std::string nomGeneral = "data/perso/hp_png/frame-";
+//  std::string numFrame;
+//  std::string nomComplet;
+  std::wstring nomGeneral(L"data/perso/hp_png/frame-");
+  std::wstring numFrame;
+  std::wstring nomComplet;
+
+  std::vector<iv::ITexture*> hpVector;
+  iv::ITexture *hpTexture;
+
+  for(int i = 1; i<58 ; i+=2)
+  {
+    numFrame = std::to_wstring(i) + L".png";
+    nomComplet = nomGeneral + numFrame;
+    hpTexture = driver->getTexture(nomComplet.c_str());
+    hpVector.push_back(hpTexture);
+  }
+  ig::IGUIImage *hpBox = gui->addImage(ic::rect<s32>(10,25,  200,100)); hpBox->setScaleImage(true);
+
+
   // nom de l'application
   core::stringw tmp = L"My Game";
   device->setWindowCaption(tmp.c_str());
@@ -81,14 +115,6 @@ int main()
 
   // Joystick Activation & Debug
   receiver.joystick1.myJoysticksActivation(device);
-
-
-
-  iv::IVideoDriver  *driver = device->getVideoDriver();
-  is::ISceneManager *smgr = device->getSceneManager();
-  ig::IGUIEnvironment *gui  = device->getGUIEnvironment();
-  is::IMeshSceneNode *node;
-  is::IMeshSceneNode *node2;
 
 
   /// on charge le decor ///
@@ -146,18 +172,18 @@ int main()
   scene::ISceneNodeAnimator *animcam2;
 
 
-
-
   //////////// physique //////////////
   // Création du triangle selector
   scene::ITriangleSelector *selector;
   scene::ITriangleSelector *selector2;
 
-
-
   parametreScene(ScreenChange, node, smgr, meshVector, selector, anim, perso, radius, animcam, camera);
 
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// lecture gif
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////// images 2D ////
 
 //  iv::IImageLoader *gifLoader;
@@ -167,7 +193,7 @@ int main()
 ///// barre de HP ////
 //  irr::io::IReadFile *health;
 //  iv::IImage *hpBar = gifLoader->loadImage(health);
-  iv::ITexture *hpTexture = driver->getTexture("data/perso/hp_png/frame-01.png");
+//  iv::ITexture *hpTexture = driver->getTexture("data/perso/hp_png/frame-01.png");
 
 //  for(int i = 0; i < 59; ++i)
 //  {
@@ -177,7 +203,7 @@ int main()
 //  }
 
 //// attribution de place pour la barre de H////
-  ig::IGUIImage *hpBox = gui->addImage(ic::rect<s32>(10,10,  50,50)); hpBox->setScaleImage(true);
+//  ig::IGUIImage *hpBox = gui->addImage(ic::rect<s32>(10,10,  50,50)); hpBox->setScaleImage(true);
 
 /////////////fonction inline lecture de GIF//////////////////
 
@@ -197,6 +223,10 @@ int main()
 //           DGifCloseFile(File);
 //           return true;
 //  }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
   srand (time(NULL));
 ///// while loop /////
@@ -222,7 +252,7 @@ int main()
 
 //        node2 = smgr->addOctreeSceneNode(meshVector[1]->getMesh(0), nullptr, 0, 1024);
 //        // Translation pour que nos personnages soient dans le décor
-//        node2->setPosition(core::vector3df(-1350, -130, -1400));
+//        node2->setPosition(core::vector3df(-1350, -180, -1400));
 
 //        perso->removeAnimator(anim);
 //        camera->removeAnimator(animcam);
@@ -231,14 +261,14 @@ int main()
 //        parametreScene(ScreenChange, node2, smgr, meshVector, selector2, anim2, perso, radius, animcam2, camera);
 //        ScreenChange = false;
 //    }
-/////////////////////////
+///////////////////////////////////////////////////////////
     camera->setTarget(perso->getPosition());
 
     smgr->drawAll();
 
 ////dessin de la barre de HP////
 
-    hpBox->setImage(hpTexture);
+    hpBox->setImage(hpVector[15]);
 
     // Dessin de la GUI :
     gui->drawAll();
