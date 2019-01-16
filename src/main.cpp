@@ -250,7 +250,7 @@ int main()
 //        std::cout<<"ok"<<std::endl;
 //        isFight = true;
 
-//        node->setVisible(false);
+//        node->remove();
 
 //        node2 = smgr->addOctreeSceneNode(meshVector[1]->getMesh(0), nullptr, 0, 1024);
 //        // Translation pour que nos personnages soient dans le décor
@@ -269,10 +269,12 @@ int main()
     smgr->drawAll();
 
 ////dessin de la barre de HP////
+    if (hp ==0)
+        numCurrentFrame = 28;
+    else
+        numCurrentFrame = nbFrame * (1 - (float)hp/hpmax);
 
-    numCurrentFrame = nbFrame * (1 - (float)hp/hpmax);
-
-    hpBox->setImage(hpVector[15]);
+    hpBox->setImage(hpVector[numCurrentFrame]);
 
     // Dessin de la GUI :
     gui->drawAll();
