@@ -18,7 +18,8 @@ namespace iv = irr::video;
 namespace ig = irr::gui;
 
 int hp;
-int hpmax = 200;
+const int hpmax = 200;
+ig::IGUIWindow *window;
 
 inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISceneManager *smgr, std::vector<is::IAnimatedMesh*> meshVector,
                            scene::ITriangleSelector *selector, scene::ISceneNodeAnimator *anim, is::IAnimatedMeshSceneNode *perso,
@@ -52,8 +53,7 @@ static void create_menu(ig::IGUIEnvironment *gui)
 static void create_window(ig::IGUIEnvironment *gui)
 {
   // La fenêtre
-  ig::IGUIWindow *window = gui->addWindow(ic::rect<s32>(420,25, 620,460), false, L"objets");
-
+  window = gui->addWindow(ic::rect<s32>(420,25, 620,460), false, L"items");
 }
 
 
@@ -72,6 +72,11 @@ int main()
     float randNum;
     bool ScreenChange = false;
 
+
+////numero de frame pour affichage hp///////////
+  int nbFrame = 29;
+  int numCurrentFrame;
+
   // Création de la fenêtre et du système de rendu.
   int W = 1080; int H = 720;
   IrrlichtDevice *device = createDevice(iv::EDT_OPENGL,
@@ -84,12 +89,14 @@ int main()
   is::IMeshSceneNode *node;
   is::IMeshSceneNode *node2;
 
+  // La barre de menu
+  create_menu(gui);
 
+  // fenêtre des objets
+  create_window(gui);
+  window->setVisible(false);
 
   //liste des images barre de hp
-//  std::string nomGeneral = "data/perso/hp_png/frame-";
-//  std::string numFrame;
-//  std::string nomComplet;
   std::wstring nomGeneral(L"data/perso/hp_png/frame-");
   std::wstring numFrame;
   std::wstring nomComplet;
@@ -147,6 +154,7 @@ int main()
   perso->setRotation(ic::vector3df(0, 90, 0));
   receiver.set_gui(gui);
   receiver.set_node(node);
+  receiver.set_window(window);
 
   const core::aabbox3d<f32>& box = perso->getBoundingBox();
   core::vector3df radius = box.MaxEdge - box.getCenter();
@@ -157,12 +165,6 @@ int main()
   ig::IGUISkin* skin = gui->getSkin();
   ig::IGUIFont* font = gui->getFont("data/menu/fontlucida.png");
   skin->setFont(font);
-
-  // La barre de menu
-  create_menu(gui);
-
-  // fenêtre des objets
-  create_window(gui);
 
   ///////////// Camera //////////////
 
@@ -267,6 +269,8 @@ int main()
     smgr->drawAll();
 
 ////dessin de la barre de HP////
+
+    numCurrentFrame = nbFrame * (1 - (float)hp/hpmax);
 
     hpBox->setImage(hpVector[15]);
 

@@ -1,5 +1,4 @@
 #include "MyEventReceiver.hpp"
-#include "gui_ids.h"
 
 namespace ig = irr::gui;
 
@@ -81,6 +80,10 @@ bool MyEventReceiver::keyboard(const irr::SEvent &event)
               case irr::KEY_KEY_A: // Tourne à gauche
                 speed = (float)(((int)speed )%18) + 3;
                 std::cout << "speed = " << speed << std::endl;
+                break;
+            case irr::KEY_KEY_I: // Tourne à gauche
+                window->setVisible(isOpened);
+                isOpened = !isOpened;
                 break;
               default:
                 isMoving = 0;
@@ -183,6 +186,14 @@ void MyEventReceiver::set_node(irr::scene::ISceneNode *n)
 void MyEventReceiver::set_gui(irr::gui::IGUIEnvironment *g)
 {
   gui = g;
+}
+
+/*===========================================================================*\
+ * set_window for items                                                      *
+\*===========================================================================*/
+void MyEventReceiver::set_window(ig::IGUIWindow *w)
+{
+  window = w;
 }
 
 MyEventReceiver::MyEventReceiver():
