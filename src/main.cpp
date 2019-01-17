@@ -17,7 +17,7 @@ namespace is = irr::scene;
 namespace iv = irr::video;
 namespace ig = irr::gui;
 
-int hp;
+int hp = 200;
 const int hpmax = 200;
 ig::IGUIWindow *window;
 
@@ -25,6 +25,7 @@ inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISce
                            scene::ITriangleSelector *selector, scene::ISceneNodeAnimator *anim, is::IAnimatedMeshSceneNode *perso,
                            core::vector3df radius, scene::ISceneNodeAnimator *animcam, scene::ICameraSceneNode* camera);
 
+inline std::vector<iv::ITexture*> loadGif(int nbFrame, std::wstring nomGeneral, iv::IVideoDriver *driver);
 
 
 /*===========================================================================*\
@@ -74,7 +75,7 @@ int main()
 
 
 ////numero de frame pour affichage hp///////////
-  int nbFrame = 29;
+  int nbFrameHp = 60;
   int numCurrentFrame;
 
   // Création de la fenêtre et du système de rendu.
@@ -97,21 +98,11 @@ int main()
   window->setVisible(false);
 
   //liste des images barre de hp
-  std::wstring nomGeneral(L"data/perso/hp_png/frame-");
-  std::wstring numFrame;
-  std::wstring nomComplet;
+  std::wstring nomGeneralHp(L"data/perso/hp/health");
 
-  std::vector<iv::ITexture*> hpVector;
-  iv::ITexture *hpTexture;
+  std::vector<iv::ITexture*> hpVector = loadGif(nbFrameHp, nomGeneralHp, driver);
 
-  for(int i = 1; i<58 ; i+=2)
-  {
-    numFrame = std::to_wstring(i) + L".png";
-    nomComplet = nomGeneral + numFrame;
-    hpTexture = driver->getTexture(nomComplet.c_str());
-    hpVector.push_back(hpTexture);
-  }
-  ig::IGUIImage *hpBox = gui->addImage(ic::rect<s32>(10,25,  200,100)); hpBox->setScaleImage(true);
+  ig::IGUIImage *hpBox = gui->addImage(ic::rect<s32>(10,25,  300,40)); hpBox->setScaleImage(true);
 
 
   // nom de l'application
@@ -269,10 +260,8 @@ int main()
     smgr->drawAll();
 
 ////dessin de la barre de HP////
-    if (hp ==0)
-        numCurrentFrame = 28;
-    else
-        numCurrentFrame = nbFrame * (1 - (float)hp/hpmax);
+
+    numCurrentFrame = (nbFrameHp - 1) * (float)hp/hpmax;
 
     hpBox->setImage(hpVector[numCurrentFrame]);
 
@@ -341,3 +330,29 @@ inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISce
 
 
 }
+
+/*===========================================================================*\
+ * load gif                                                                  *
+\*===========================================================================*/
+
+inline std::vector<iv::ITexture*> loadGif(int nbFrame, std::wstring nomGeneral, iv::IVideoDriver *driver)
+{
+    std::vector<iv::ITexture*> Vector;
+    std::wstring numFrame;
+    std::wstring nomComplet;
+
+    iv::ITexture *Texture;
+
+    for(int i = 1; i<=nbFrame ; i++)
+    {
+      numFrame = std::to_wstring(i) + L".png";
+      nomComplet = nomGeneral + numFrame;
+      Texture = driver->getTexture(nomComplet.c_str());
+      Vector.push_back(Texture);
+    }
+    return Vector;
+}
+
+
+
+
