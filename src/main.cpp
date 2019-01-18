@@ -27,6 +27,9 @@ inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISce
 
 inline std::vector<iv::ITexture*> loadGif(int nbFrame, std::wstring nomGeneral, iv::IVideoDriver *driver);
 
+inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ig::IGUIImage *box, IrrlichtDevice *device,
+                      is::ISceneManager *smgr, ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver);
+
 
 /*===========================================================================*\
  * create_menu                                                               *
@@ -105,6 +108,14 @@ int main()
   ig::IGUIImage *hpBox = gui->addImage(ic::rect<s32>(10,25,  300,40)); hpBox->setScaleImage(true);
 
 
+  //animation debut combat
+  std::wstring nomGeneralFight(L"data/animations/combat/combat");
+  int nbFrameFight = 20;
+  std::vector<iv::ITexture*> fightVector = loadGif(nbFrameHp, nomGeneralFight, driver);
+
+  ig::IGUIImage *fightBox = gui->addImage(ic::rect<s32>(0,  0, W, H)); fightBox->setScaleImage(true);
+
+
   // nom de l'application
   core::stringw tmp = L"My Game";
   device->setWindowCaption(tmp.c_str());
@@ -143,10 +154,13 @@ int main()
   perso->setMD2Animation(is::EMAT_STAND);
   perso->setMaterialTexture(0, driver->getTexture("data/tris/blue_texture.pcx"));
   perso->setRotation(ic::vector3df(0, 90, 0));
+
+  //on set tout ce qui faut pour le receiver
   receiver.set_gui(gui);
   receiver.set_node(node);
   receiver.set_window(window);
 
+  //perso
   const core::aabbox3d<f32>& box = perso->getBoundingBox();
   core::vector3df radius = box.MaxEdge - box.getCenter();
   scene::ISceneNodeAnimator *anim;
@@ -198,29 +212,6 @@ int main()
 //// attribution de place pour la barre de H////
 //  ig::IGUIImage *hpBox = gui->addImage(ic::rect<s32>(10,10,  50,50)); hpBox->setScaleImage(true);
 
-/////////////fonction inline lecture de GIF//////////////////
-
-//  inline std::vector<irr::video::IImage*>  load(const char*file)
-//  {
-//           irr::core::array<irr::video::IImage*> calque;
-//           int i, ExtCode;
-//           GifFileType *File;
-//           File = DGifOpenFileName(file);
-
-//           for(int i = 0; i < File->ImageCount; ++i);
-//           {
-//               irr::video::IImage *tmp = driver->createImageFromData(irr::video::ECF_A8R8G8B8,irr::core::dimension2d<irr::u32>((irr::u32)File->SWidth,(irr::u32)File->SHeight),(void*)(File->SColorMap[i].Colors),false);
-//               calque.push_back(tmp);
-//           }
-
-//           DGifCloseFile(File);
-//           return true;
-//  }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
   srand (time(NULL));
 ///// while loop /////
 
@@ -228,32 +219,36 @@ int main()
   {
     driver->beginScene(true, true, iv::SColor(100,150,200,255));
 
-////combat hasard/////
-//    if (!isFight)
-//    {
-//        randNum = rand()/(float)RAND_MAX;
+////combat hasard////////////////////////////////////////
+/////////////////////////////////////////////////////////
+    if (!isFight)
+    {
+        randNum = rand()/(float)RAND_MAX;
 
-//        ScreenChange = randNum < probaFight;
-//    }
+        ScreenChange = randNum < probaFight;
+    }
 
-//    if (ScreenChange)
-//    {
-//        std::cout<<"ok"<<std::endl;
-//        isFight = true;
+    if (ScreenChange)
+    {
+        std::cout<<"ok"<<std::endl;
+        isFight = true;
 
-//        node->remove();
+        playVideo(fightVector, nbFrameFight, fightBox, device, smgr, gui, driver);
 
-//        node2 = smgr->addOctreeSceneNode(meshVector[1]->getMesh(0), nullptr, 0, 1024);
-//        // Translation pour que nos personnages soient dans le décor
-//        node2->setPosition(core::vector3df(-1350, -180, -1400));
+        //node->remove();
 
-//        perso->removeAnimator(anim);
-//        camera->removeAnimator(animcam);
+        node2 = smgr->addOctreeSceneNode(meshVector[1]->getMesh(0), nullptr, 0, 1024);
+        // Translation pour que nos personnages soient dans le décor
+        node2->setPosition(core::vector3df(-1350, -180, -1400));
+
+        perso->removeAnimator(anim);
+        camera->removeAnimator(animcam);
 
 
-//        parametreScene(ScreenChange, node2, smgr, meshVector, selector2, anim2, perso, radius, animcam2, camera);
-//        ScreenChange = false;
-//    }
+        parametreScene(ScreenChange, node2, smgr, meshVector, selector2, anim2, perso, radius, animcam2, camera);
+        ScreenChange = false;
+    }
+///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
     camera->setTarget(perso->getPosition());
 
@@ -286,8 +281,6 @@ inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISce
                            scene::ITriangleSelector *selector, scene::ISceneNodeAnimator *anim, is::IAnimatedMeshSceneNode *perso,
                            core::vector3df radius, scene::ISceneNodeAnimator *animcam, scene::ICameraSceneNode* camera)
 {
-    std::cout<<"ok par"<<std::endl;
-
 //    if (node)
 //    {
 //        node->setVisible(false);
@@ -354,5 +347,25 @@ inline std::vector<iv::ITexture*> loadGif(int nbFrame, std::wstring nomGeneral, 
 }
 
 
+/*===========================================================================*\
+ * play video                                                                *
+\*===========================================================================*/
 
+inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ig::IGUIImage *box, IrrlichtDevice *device,
+                      is::ISceneManager *smgr, ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver)
+{
+    int currentFrame = 0;
+    while(currentFrame<nbFrame)
+    {
+        box->setImage(frameVector[currentFrame]);
+        currentFrame++;
+        std::cout << currentFrame << std::endl;
+        smgr->drawAll();
+        gui->drawAll();
+        driver->endScene();
+
+        device->sleep(100);
+    }
+    box->remove();
+}
 
