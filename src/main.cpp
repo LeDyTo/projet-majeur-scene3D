@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 
+
 /**************** Namespaces ****************/
 
 using namespace irr;
@@ -17,9 +18,13 @@ namespace is = irr::scene;
 namespace iv = irr::video;
 namespace ig = irr::gui;
 
-int hp = 200;
+int hp = 89;
 const int hpmax = 200;
 ig::IGUIWindow *window;
+ig::IGUIWindow *ecranTitre;
+bool start = false;
+int W = 1080; int H = 720;
+
 
 inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISceneManager *smgr, std::vector<is::IAnimatedMesh*> meshVector,
                            scene::ITriangleSelector *selector, scene::ISceneNodeAnimator *anim, is::IAnimatedMeshSceneNode *perso,
@@ -27,9 +32,10 @@ inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISce
 
 inline std::vector<iv::ITexture*> loadGif(int nbFrame, std::wstring nomGeneral, iv::IVideoDriver *driver);
 
-inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ig::IGUIImage *box, IrrlichtDevice *device,
+inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ic::rect<s32> box, IrrlichtDevice *device,
                       is::ISceneManager *smgr, ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver);
 
+inline void title_Screen(ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver, is::ISceneManager *smgr);
 
 /*===========================================================================*\
  * create_menu                                                               *
@@ -56,19 +62,22 @@ static void create_menu(ig::IGUIEnvironment *gui)
 \*===========================================================================*/
 static void create_window(ig::IGUIEnvironment *gui)
 {
-  // La fenêtre
-  window = gui->addWindow(ic::rect<s32>(420,25, 620,460), false, L"items");
+  // Les fenêtres
+    window = gui->addWindow(ic::rect<s32>(420,25, 620,460), false, L"items");
+    ecranTitre = gui->addWindow(ic::rect<s32>(0,0, W,H), false, L"name");
+
+    gui->addButton(ic::rect<s32>(40,74, 140,92), ecranTitre, WINDOW_BUTTON, L"Start");
 }
 
 
 /*===========================================================================*\
- * main                                                             *
+ * main                                                                      *
 \*===========================================================================*/
 int main()
 {
   /// Le gestionnaire d'événements ///
   MyEventReceiver receiver;
-
+  receiver.set_start(start);
 
   ////variables aléatoires pour lancement combat////
     float probaFight = 0.0005;
@@ -76,6 +85,7 @@ int main()
     float randNum;
     bool ScreenChange = false;
 
+////ecran titre///////////
 
 ////numero de frame pour affichage hp///////////
   int nbFrameHp = 60;
@@ -96,7 +106,7 @@ int main()
   // La barre de menu
   create_menu(gui);
 
-  // fenêtre des objets
+  // fenêtre des objets et ecran titre
   create_window(gui);
   window->setVisible(false);
 
@@ -113,8 +123,7 @@ int main()
   int nbFrameFight = 20;
   std::vector<iv::ITexture*> fightVector = loadGif(nbFrameHp, nomGeneralFight, driver);
 
-  ig::IGUIImage *fightBox = gui->addImage(ic::rect<s32>(0,  0, W, H)); fightBox->setScaleImage(true);
-
+  ic::rect<s32> fightBox(0,  0, W, H);
 
   // nom de l'application
   core::stringw tmp = L"My Game";
@@ -186,38 +195,16 @@ int main()
 
   parametreScene(ScreenChange, node, smgr, meshVector, selector, anim, perso, radius, animcam, camera);
 
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// lecture gif
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////// images 2D ////
-
-//  iv::IImageLoader *gifLoader;
-//  driver->addExternalImageLoader(gifLoader);
-
-
-///// barre de HP ////
-//  irr::io::IReadFile *health;
-//  iv::IImage *hpBar = gifLoader->loadImage(health);
-//  iv::ITexture *hpTexture = driver->getTexture("data/perso/hp_png/frame-01.png");
-
-//  for(int i = 0; i < 59; ++i)
-//  {
-//     health = irr::io::createReadFile("data/perso/hp_png/frame-01.png");
-//     hpBar = gifLoader->loadImage(health);
-//     hpTexture[0] = driver->addTexture("hpTexture",hpBar);
-//  }
-
-//// attribution de place pour la barre de H////
-//  ig::IGUIImage *hpBox = gui->addImage(ic::rect<s32>(10,10,  50,50)); hpBox->setScaleImage(true);
-
   srand (time(NULL));
 ///// while loop /////
 
   while(device->run())
   {
     driver->beginScene(true, true, iv::SColor(100,150,200,255));
+
+//    if (!start)
+//        title_Screen(gui, driver, smgr);
+
 
 ////combat hasard////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -250,6 +237,12 @@ int main()
     }
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
+
+    if (!start && node && node2)
+    {
+        node->setVisible(false);
+        node2->setVisible(false);
+    }
     camera->setTarget(perso->getPosition());
 
     smgr->drawAll();
@@ -270,11 +263,21 @@ int main()
   return 0;
 }
 
-
-
+/*===========================================================================*\
+ * gestion sur l ecran titre                                                 *
+\*===========================================================================*/
+inline void title_Screen(ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver, is::ISceneManager *smgr)
+{
+    while(!start)
+    {
+        smgr->drawAll();
+        gui->drawAll();
+        driver->endScene();
+    }
+}
 
 /*===========================================================================*\
- * update scene                                                               *
+ * update scene                                                              *
 \*===========================================================================*/
 
 inline void parametreScene(bool screenChange, is::IMeshSceneNode *node, is::ISceneManager *smgr, std::vector<is::IAnimatedMesh*> meshVector,
@@ -346,18 +349,19 @@ inline std::vector<iv::ITexture*> loadGif(int nbFrame, std::wstring nomGeneral, 
     return Vector;
 }
 
-
 /*===========================================================================*\
  * play video                                                                *
 \*===========================================================================*/
 
-inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ig::IGUIImage *box, IrrlichtDevice *device,
+inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ic::rect<s32> box, IrrlichtDevice *device,
                       is::ISceneManager *smgr, ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver)
 {
+    ig::IGUIImage *Box = gui->addImage(box); Box->setScaleImage(true);
+
     int currentFrame = 0;
     while(currentFrame<nbFrame)
     {
-        box->setImage(frameVector[currentFrame]);
+        Box->setImage(frameVector[currentFrame]);
         currentFrame++;
         std::cout << currentFrame << std::endl;
         smgr->drawAll();
@@ -366,6 +370,7 @@ inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ig::I
 
         device->sleep(100);
     }
-    box->remove();
+    Box->remove();
 }
+inline void titleScreen();
 

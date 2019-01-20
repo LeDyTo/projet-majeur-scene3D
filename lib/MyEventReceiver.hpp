@@ -26,6 +26,7 @@ private:
   irr::gui::IGUIEnvironment *gui;
   irr::scene::ISceneNode *node;
   irr::gui::IGUIWindow *window;
+  bool start = 0;
   bool isOpened = true; //items window state
   //methodes :
 
@@ -33,9 +34,13 @@ public:
 
   //constructeur(s) :
   MyEventReceiver();
+
+  //setter
   void set_gui(irr::gui::IGUIEnvironment *g);
   void set_node(irr::scene::ISceneNode *n);
   void set_window(irr::gui::IGUIWindow *w);
+  void set_start(bool begin);
+
 
   //attributs :
   irr::scene::IAnimatedMeshSceneNode * perso1; //correspondra au perso principal; on pourra par la suite rajouter d'autres persos
@@ -48,9 +53,7 @@ public:
 
 
 
-
   MyJoystickManager joystick1;
-
 
   //methodes :
   bool OnEvent(const irr::SEvent &event); //surcharge de la fonction OnEvent() pour ajouter nos propres events
