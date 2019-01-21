@@ -22,7 +22,6 @@ int hp = 89;
 const int hpmax = 200;
 ig::IGUIWindow *window;
 ig::IGUIWindow *ecranTitre;
-bool start = false;
 int W = 1080; int H = 720;
 
 
@@ -35,7 +34,7 @@ inline std::vector<iv::ITexture*> loadGif(int nbFrame, std::wstring nomGeneral, 
 inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ic::rect<s32> box, IrrlichtDevice *device,
                       is::ISceneManager *smgr, ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver);
 
-inline void title_Screen(ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver, is::ISceneManager *smgr);
+inline void title_Screen(is::IMeshSceneNode *node, is::IMeshSceneNode *node2, is::IAnimatedMeshSceneNode *perso, ig::IGUIImage *hpBox);
 
 /*===========================================================================*\
  * create_menu                                                               *
@@ -60,13 +59,18 @@ static void create_menu(ig::IGUIEnvironment *gui)
 /*===========================================================================*\
  * create_window for items                                                   *
 \*===========================================================================*/
-static void create_window(ig::IGUIEnvironment *gui)
+static void create_window(ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver)
 {
   // Les fenêtres
     window = gui->addWindow(ic::rect<s32>(420,25, 620,460), false, L"items");
-    ecranTitre = gui->addWindow(ic::rect<s32>(0,0, W,H), false, L"name");
+    ecranTitre = gui->addWindow(ic::rect<s32>(0, 0, W,H), false); ecranTitre->setDrawTitlebar(false); ecranTitre->setDraggable(false);
 
-    gui->addButton(ic::rect<s32>(40,74, 140,92), ecranTitre, WINDOW_BUTTON, L"Start");
+    iv::ITexture *name = driver->getTexture(L"data/menu/name.png");
+    iv::ITexture *start = driver->getTexture(L"data/menu/startbutton.png");
+    gui->addImage(name, ic::position2d<s32>(0, 0), true, ecranTitre);
+    ig::IGUIButton *startButton = gui->addButton(ic::rect<s32>(W/2 - 150, H/2 - 50, W/2 + 150, H/2 + 50), ecranTitre, WINDOW_BUTTON);
+    startButton->setUseAlphaChannel(true);startButton->setDrawBorder(false);
+    startButton->setImage(start); startButton->setScaleImage(true);
 }
 
 
@@ -77,7 +81,6 @@ int main()
 {
   /// Le gestionnaire d'événements ///
   MyEventReceiver receiver;
-  receiver.set_start(start);
 
   ////variables aléatoires pour lancement combat////
     float probaFight = 0.0005;
@@ -85,7 +88,6 @@ int main()
     float randNum;
     bool ScreenChange = false;
 
-////ecran titre///////////
 
 ////numero de frame pour affichage hp///////////
   int nbFrameHp = 60;
@@ -107,7 +109,7 @@ int main()
   create_menu(gui);
 
   // fenêtre des objets et ecran titre
-  create_window(gui);
+  create_window(gui, driver);
   window->setVisible(false);
 
   //liste des images barre de hp
@@ -137,20 +139,21 @@ int main()
 
   /// on charge le decor ///
   // Ajout de l'archive qui contient entre autres un niveau complet
-  device->getFileSystem()->addFileArchive("data/maps/mario.pk3");
+  device->getFileSystem()->addFileArchive("data/maps/cf.pk3");
   device->getFileSystem()->addFileArchive("data/maps/map-20kdm2.pk3");
 
   // On charge un bsp (un niveau) en particulier :
-  is::IAnimatedMesh *mesh_bsp = smgr->getMesh("mario.bsp");
+  is::IAnimatedMesh *mesh_bsp = smgr->getMesh("cf.bsp");
   is::IAnimatedMesh *mesh_bsp2 = smgr->getMesh("20kdm2.bsp");
   std::vector<is::IAnimatedMesh*> meshVector;
   meshVector.push_back(mesh_bsp);
   meshVector.push_back(mesh_bsp2);
 
   node = smgr->addOctreeSceneNode(meshVector[0]->getMesh(0), nullptr, -1, 1024);
-  // Translation pour que nos personnages soient dans le décor
-  node->setPosition(core::vector3df(0,-104,0));
+  node2 = smgr->addOctreeSceneNode(meshVector[1]->getMesh(0), nullptr, 0, 1024);
 
+  // Translation pour que nos personnages soient dans le décor
+  node->setPosition(core::vector3df(200,-200,250));
 
 
   /// Chargement de notre personnage ///
@@ -192,7 +195,6 @@ int main()
   // Création du triangle selector
   scene::ITriangleSelector *selector;
   scene::ITriangleSelector *selector2;
-
   parametreScene(ScreenChange, node, smgr, meshVector, selector, anim, perso, radius, animcam, camera);
 
   srand (time(NULL));
@@ -202,47 +204,49 @@ int main()
   {
     driver->beginScene(true, true, iv::SColor(100,150,200,255));
 
-//    if (!start)
-//        title_Screen(gui, driver, smgr);
-
+    if (receiver.get_start())
+    {
+        ecranTitre->setVisible(false);
+        node->setVisible(true);
+        node2->setVisible(true);
+        perso->setVisible(true);
+        hpBox->setVisible(true);
+    }
+    else
+        title_Screen(node, node2, perso, hpBox);
 
 ////combat hasard////////////////////////////////////////
 /////////////////////////////////////////////////////////
-    if (!isFight)
-    {
-        randNum = rand()/(float)RAND_MAX;
+//    if (!isFight && receiver.get_start())
+//    {
+//        randNum = rand()/(float)RAND_MAX;
 
-        ScreenChange = randNum < probaFight;
-    }
+//        ScreenChange = randNum < probaFight;
+//    }
 
-    if (ScreenChange)
-    {
-        std::cout<<"ok"<<std::endl;
-        isFight = true;
+//    if (ScreenChange)
+//    {
+//        std::cout<<"ok"<<std::endl;
+//        isFight = true;
 
-        playVideo(fightVector, nbFrameFight, fightBox, device, smgr, gui, driver);
+//        playVideo(fightVector, nbFrameFight, fightBox, device, smgr, gui, driver);
 
-        //node->remove();
+//        node->setVisible(false);
 
-        node2 = smgr->addOctreeSceneNode(meshVector[1]->getMesh(0), nullptr, 0, 1024);
-        // Translation pour que nos personnages soient dans le décor
-        node2->setPosition(core::vector3df(-1350, -180, -1400));
+//        node2 = smgr->addOctreeSceneNode(meshVector[1]->getMesh(0), nullptr, 0, 1024);
+//        // Translation pour que nos personnages soient dans le décor
+//        node2->setPosition(core::vector3df(-1350, -180, -1400));
 
-        perso->removeAnimator(anim);
-        camera->removeAnimator(animcam);
+//        perso->removeAnimator(anim);
+//        camera->removeAnimator(animcam);
 
 
-        parametreScene(ScreenChange, node2, smgr, meshVector, selector2, anim2, perso, radius, animcam2, camera);
-        ScreenChange = false;
-    }
+//        parametreScene(ScreenChange, node2, smgr, meshVector, selector2, anim2, perso, radius, animcam2, camera);
+//        ScreenChange = false;
+//    }
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
-    if (!start && node && node2)
-    {
-        node->setVisible(false);
-        node2->setVisible(false);
-    }
     camera->setTarget(perso->getPosition());
 
     smgr->drawAll();
@@ -266,14 +270,12 @@ int main()
 /*===========================================================================*\
  * gestion sur l ecran titre                                                 *
 \*===========================================================================*/
-inline void title_Screen(ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver, is::ISceneManager *smgr)
+inline void title_Screen(is::IMeshSceneNode *node, is::IMeshSceneNode *node2, is::IAnimatedMeshSceneNode *perso, ig::IGUIImage *hpBox)
 {
-    while(!start)
-    {
-        smgr->drawAll();
-        gui->drawAll();
-        driver->endScene();
-    }
+    node->setVisible(false);
+    node2->setVisible(false);
+    perso->setVisible(false);
+    hpBox->setVisible(false);
 }
 
 /*===========================================================================*\
@@ -372,5 +374,3 @@ inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ic::r
     }
     Box->remove();
 }
-inline void titleScreen();
-

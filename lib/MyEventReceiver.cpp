@@ -173,8 +173,6 @@ bool MyEventReceiver::gui_manage(const irr::SEvent &event)
           irr::s32 id = event.GUIEvent.Caller->getID();
           if (id == WINDOW_BUTTON)
           {
-              std::cout << "ca tourne" << std::endl;
-
               start = true;
           }
         }
@@ -213,9 +211,9 @@ void MyEventReceiver::set_window(ig::IGUIWindow *w)
 /*===========================================================================*\
  * set_start game                                                    *
 \*===========================================================================*/
-void MyEventReceiver::set_start(bool begin)
+bool MyEventReceiver::get_start()
 {
-  start = begin;
+  return start;
 }
 
 MyEventReceiver::MyEventReceiver():

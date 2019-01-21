@@ -26,7 +26,7 @@ private:
   irr::gui::IGUIEnvironment *gui;
   irr::scene::ISceneNode *node;
   irr::gui::IGUIWindow *window;
-  bool start = 0;
+  bool start = false;
   bool isOpened = true; //items window state
   //methodes :
 
@@ -39,7 +39,7 @@ public:
   void set_gui(irr::gui::IGUIEnvironment *g);
   void set_node(irr::scene::ISceneNode *n);
   void set_window(irr::gui::IGUIWindow *w);
-  void set_start(bool begin);
+  bool get_start();
 
 
   //attributs :
