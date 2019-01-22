@@ -65,7 +65,7 @@ static void create_window(ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver)
     window = gui->addWindow(ic::rect<s32>(420,25, 620,460), false, L"items");
     ecranTitre = gui->addWindow(ic::rect<s32>(0, 0, W,H), false); ecranTitre->setDrawTitlebar(false); ecranTitre->setDraggable(false);
 
-    iv::ITexture *name = driver->getTexture(L"data/menu/name.png");
+    iv::ITexture *name = driver->getTexture(L"data/menu/ecrantitre.png");
     iv::ITexture *start = driver->getTexture(L"data/menu/startbutton.png");
     gui->addImage(name, ic::position2d<s32>(0, 0), true, ecranTitre);
     ig::IGUIButton *startButton = gui->addButton(ic::rect<s32>(W/2 - 150, H/2 - 50, W/2 + 150, H/2 + 50), ecranTitre, WINDOW_BUTTON);
@@ -166,6 +166,7 @@ int main()
   perso->setMD2Animation(is::EMAT_STAND);
   perso->setMaterialTexture(0, driver->getTexture("data/tris/blue_texture.pcx"));
   perso->setRotation(ic::vector3df(0, 90, 0));
+  perso->setPosition(ic::vector3df(1290.93, 388.025, -1334.74));
 
   //on set tout ce qui faut pour le receiver
   receiver.set_gui(gui);
@@ -196,6 +197,57 @@ int main()
   scene::ITriangleSelector *selector;
   scene::ITriangleSelector *selector2;
   parametreScene(ScreenChange, node, smgr, meshVector, selector, anim, perso, radius, animcam, camera);
+
+
+  /// Chargement des coffres ///
+  is::IAnimatedMesh *meshChest = smgr->getMesh("data/coffre/Chest.obj");
+
+  int NbChest = 7;
+  is::IAnimatedMeshSceneNode *chest[NbChest];
+
+
+  for (int k = 0; k < NbChest; k++)
+  {
+      chest[k] = smgr->addAnimatedMeshSceneNode(meshChest);
+      chest[k]->setMaterialFlag(iv::EMF_LIGHTING, false);
+      chest[k]->setMaterialTexture(0, driver->getTexture("data/coffre/diffuse.tga"));
+  }
+//  const core::aabbox3d<f32>& boxChest = chest[0]->getBoundingBox();
+//  core::vector3df radiusChest = boxChest.MaxEdge - boxChest.getCenter();
+//  //on applique le poids et les colisions aux coffres
+//  for (int k = 0; k < 1; k++)
+//  {
+//      scene::ITriangleSelector *selectorChest = smgr->createOctreeTriangleSelector(node->getMesh(), node);
+//      node->setTriangleSelector(selectorChest);
+  
+//      scene::ISceneNodeAnimator *animChest
+//                                = smgr->createCollisionResponseAnimator(selectorChest,
+//                                                                       chest[k],  // Le noeud que l'on veut gérer
+//                                                                       radiusChest, // "rayons" de la caméra
+//                                                                       ic::vector3df(0, -10, 0),  // gravité
+//                                                                       ic::vector3df(0, 0, 0));  // décalage du centre
+//      chest[k]->addAnimator(animChest);
+//  }
+  chest[0]->setPosition(ic::vector3df(1898.98, 376.025, -1539.27));
+  chest[0]->setRotation(ic::vector3df(0, 180, 0));
+
+  chest[1]->setPosition(ic::vector3df(775.95, -8, -1767.98));
+
+  chest[2]->setPosition(ic::vector3df(624.709, -183.975, -1358.84));
+  chest[2]->setRotation(ic::vector3df(0, -44, 0));
+
+  chest[3]->setPosition(ic::vector3df(424.272, 432.025, -966));
+  chest[3]->setRotation(ic::vector3df(0, 90, 0));
+
+  chest[4]->setPosition(ic::vector3df(-504, 568.025, 698.047));
+  chest[4]->setRotation(ic::vector3df(0, 180, 0));
+
+  chest[5]->setPosition(ic::vector3df(263.147, 568.017, 609.818));
+  chest[5]->setRotation(ic::vector3df(0, 180, 0));
+
+  chest[6]->setPosition(ic::vector3df(582.848, 952.02, 179.737));
+  chest[6]->setRotation(ic::vector3df(0, -90, 0));
+
 
   srand (time(NULL));
 ///// while loop /////
