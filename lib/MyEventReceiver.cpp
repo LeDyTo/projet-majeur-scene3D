@@ -86,7 +86,7 @@ bool MyEventReceiver::keyboard(const irr::SEvent &event)
                 isOpened = !isOpened;
                 break;
             case irr::KEY_KEY_M: // Tourne à gauche
-                std::cout << " j appuie " << std::endl;
+                std::cout << " j appuie \n\n\n\n\n\n" << std::endl;
                 interact = true;
                 break;
               default:

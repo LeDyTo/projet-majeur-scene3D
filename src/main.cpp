@@ -245,6 +245,7 @@ int main()
         title_Screen(node, node2, perso, hpBox);
 
 //on verifie si on ouvre un coffre
+    //std::cout<<"test                "<<receiver.get_interact()<<std::endl;
     openChest(chest, perso,itemsButton, gui, window, idItem, nbObjetTrouve, receiver, NbChest, items);
 
 ////combat hasard////////////////////////////////////////
