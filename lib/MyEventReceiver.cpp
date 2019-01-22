@@ -177,35 +177,42 @@ bool MyEventReceiver::gui_manage(const irr::SEvent &event)
           }
           if (id == ITEM_1)
           {
-              start = true;
+              window->getElementFromId(id)->setVisible(false);
+              gainHp = 0.4;
           }
           if (id == ITEM_2)
           {
-              start = true;
+              window->getElementFromId(id)->setVisible(false);
+              gainHp = 0.4;
           }
           if (id == ITEM_3)
           {
-              start = true;
+              window->getElementFromId(id)->setVisible(false);
+              gainHp = 0.4;
           }
           if (id == ITEM_4)
           {
-              start = true;
+              window->getElementFromId(id)->setVisible(false);
+              gainHp = 0.4;
           }
           if (id == ITEM_5)
           {
-              start = true;
+              window->getElementFromId(id)->setVisible(false);
+              gainHp = 0.65;
           }
           if (id == ITEM_6)
           {
-              start = true;
+              window->getElementFromId(id)->setVisible(false);
+              gainHp = 0.65;
           }
           if (id == ITEM_7)
           {
-              start = true;
+              window->getElementFromId(id)->setVisible(false);
+              gainHp = 0.90;
           }
           if (id == ITEM_8)
           {
-              start = true;
+              window->getElementFromId(id)->setVisible(false);
           }
        }
         break;
@@ -241,11 +248,24 @@ void MyEventReceiver::set_window(ig::IGUIWindow *w)
 }
 
 /*===========================================================================*\
- * set_start game                                                    *
+ * get_start game                                                    *
 \*===========================================================================*/
 bool MyEventReceiver::get_start()
 {
   return start;
+}
+
+/*===========================================================================*\
+ * get hp++                                                                  *
+\*===========================================================================*/
+int MyEventReceiver::applyGainHp(int hp, int hpMax)
+{
+
+  hp += gainHp*(float)(hpMax - hp);
+  gainHp = 0;
+  std::cout << hp << std::endl;
+
+  return hp;
 }
 
 MyEventReceiver::MyEventReceiver():

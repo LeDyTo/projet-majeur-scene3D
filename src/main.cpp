@@ -227,6 +227,7 @@ int main()
   while(device->run())
   {
     driver->beginScene(true, true, iv::SColor(100,150,200,255));
+    hp = receiver.applyGainHp(hp,hpmax);
 
     if (receiver.get_start())
     {
@@ -245,10 +246,12 @@ int main()
         int ligne = nbObjetTrouve>3;
         if (ligne ==0)
             itemsButton[nbObjetTrouve] = gui->addButton(ic::rect<s32>((nbObjetTrouve%4)*1060/4 + 10, ligne*620/2 + 45,
-                                                                      (nbObjetTrouve%4 + 1)*1060/4 - 10, (ligne + 1)*620/2), window);
+                                                                      (nbObjetTrouve%4 + 1)*1060/4 - 10, (ligne + 1)*620/2),
+                                                                      window, idItem[nbObjetTrouve]);
         else
             itemsButton[nbObjetTrouve] = gui->addButton(ic::rect<s32>((nbObjetTrouve%4)*1060/4 + 10, ligne*620/2,
-                                                                      (nbObjetTrouve%4 + 1)*1060/4 - 10, (ligne + 1)*620/2), window);
+                                                                      (nbObjetTrouve%4 + 1)*1060/4 - 10, (ligne + 1)*620/2),
+                                                                      window, idItem[nbObjetTrouve]);
 
         itemsButton[nbObjetTrouve]->setUseAlphaChannel(true);itemsButton[nbObjetTrouve]->setDrawBorder(false);
         itemsButton[nbObjetTrouve]->setImage(items[nbObjetTrouve]);itemsButton[nbObjetTrouve]->setScaleImage(true);

@@ -40,6 +40,8 @@ public:
   void set_node(irr::scene::ISceneNode *n);
   void set_window(irr::gui::IGUIWindow *w);
   bool get_start();
+  int applyGainHp(int hp, int hpMax);
+
 
 
   //attributs :
@@ -50,7 +52,7 @@ public:
   bool button_pressed;
   int  old_x, old_y;
   float speed = 3;
-
+  float gainHp = 0;
 
 
   MyJoystickManager joystick1;
