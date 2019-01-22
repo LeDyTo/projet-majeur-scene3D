@@ -38,6 +38,10 @@ inline void title_Screen(is::IMeshSceneNode *node, is::IMeshSceneNode *node2, is
 
 inline void   parametreChest(is::ISceneManager *smgr, int NbChest, iv::IVideoDriver *driver, is::IAnimatedMeshSceneNode **chest,
                              iv::ITexture **items, s32 *idItem, is::IAnimatedMesh *meshChest);
+
+inline void openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshSceneNode *perso, ig::IGUIButton **itemsButton,
+                      ig::IGUIEnvironment *gui, ig::IGUIWindow *window, s32 *idItem, int nbObjetTrouve, MyEventReceiver receiver,
+                      int NbChest, iv::ITexture **items);
 /*===========================================================================*\
  * create_menu                                                               *
 \*===========================================================================*/
@@ -176,7 +180,7 @@ int main()
   perso->setMD2Animation(is::EMAT_STAND);
   perso->setMaterialTexture(0, driver->getTexture("data/tris/blue_texture.pcx"));
   perso->setRotation(ic::vector3df(0, 90, 0));
-  perso->setPosition(ic::vector3df(1290.93, 388.025, -1334.74));
+  perso->setPosition(ic::vector3df(1898.98, 450.025, -1539.27));
 
   //on set tout ce qui faut pour le receiver
   receiver.set_gui(gui);
@@ -240,25 +244,8 @@ int main()
     else
         title_Screen(node, node2, perso, hpBox);
 
-//actualisation de l inventaire
-    if(objetTrouve)
-    {
-        int ligne = nbObjetTrouve>3;
-        if (ligne ==0)
-            itemsButton[nbObjetTrouve] = gui->addButton(ic::rect<s32>((nbObjetTrouve%4)*1060/4 + 10, ligne*620/2 + 45,
-                                                                      (nbObjetTrouve%4 + 1)*1060/4 - 10, (ligne + 1)*620/2),
-                                                                      window, idItem[nbObjetTrouve]);
-        else
-            itemsButton[nbObjetTrouve] = gui->addButton(ic::rect<s32>((nbObjetTrouve%4)*1060/4 + 10, ligne*620/2,
-                                                                      (nbObjetTrouve%4 + 1)*1060/4 - 10, (ligne + 1)*620/2),
-                                                                      window, idItem[nbObjetTrouve]);
-
-        itemsButton[nbObjetTrouve]->setUseAlphaChannel(true);itemsButton[nbObjetTrouve]->setDrawBorder(false);
-        itemsButton[nbObjetTrouve]->setImage(items[nbObjetTrouve]);itemsButton[nbObjetTrouve]->setScaleImage(true);
-        nbObjetTrouve++;
-        if (nbObjetTrouve == 8)
-            objetTrouve = false;
-    }
+//on verifie si on ouvre un coffre
+    openChest(chest, perso,itemsButton, gui, window, idItem, nbObjetTrouve, receiver, NbChest, items);
 
 ////combat hasard////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -488,4 +475,49 @@ inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ic::r
         device->sleep(100);
     }
     Box->remove();
+}
+
+
+
+/*===========================================================================*\
+ * is a chest opening                                                        *
+\*===========================================================================*/
+inline void openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshSceneNode *perso, ig::IGUIButton **itemsButton,
+                      ig::IGUIEnvironment *gui, ig::IGUIWindow *window, s32 *idItem, int nbObjetTrouve, MyEventReceiver receiver,
+                      int NbChest, iv::ITexture **items)
+{
+    int epsilon = 10;
+    for (unsigned int k = 0; k < NbChest; k++)
+    {
+        if (chest[k] != NULL && perso != NULL) // pour eviter les erreurs de segmentations
+        {
+
+                if (    (core::abs_(perso->getPosition().X - chest[k]->getPosition().X)) <= epsilon
+                        &&   (core::abs_(perso->getPosition().Y - chest[k]->getPosition().Y)) <= epsilon*5
+                        &&   (core::abs_(perso->getPosition().Z - chest[k]->getPosition().Z)) <= epsilon
+                        &&   receiver.get_interact() )
+
+                {
+                    //actualisation de l inventaire
+
+                    std::cout << "get interact" << receiver.get_interact() << std::endl;
+                            int ligne = nbObjetTrouve>3;
+                            if (ligne ==0)
+                                itemsButton[nbObjetTrouve] = gui->addButton(ic::rect<s32>((nbObjetTrouve%4)*1060/4 + 10, ligne*620/2 + 45,
+                                                                                          (nbObjetTrouve%4 + 1)*1060/4 - 10, (ligne + 1)*620/2),
+                                                                                          window, idItem[nbObjetTrouve]);
+                            else
+                                itemsButton[nbObjetTrouve] = gui->addButton(ic::rect<s32>((nbObjetTrouve%4)*1060/4 + 10, ligne*620/2,
+                                                                                          (nbObjetTrouve%4 + 1)*1060/4 - 10, (ligne + 1)*620/2),
+                                                                                          window, idItem[nbObjetTrouve]);
+
+                            itemsButton[nbObjetTrouve]->setUseAlphaChannel(true);itemsButton[nbObjetTrouve]->setDrawBorder(false);
+                            itemsButton[nbObjetTrouve]->setImage(items[nbObjetTrouve]);itemsButton[nbObjetTrouve]->setScaleImage(true);
+                            nbObjetTrouve++;
+                            std::cout << "nbobjet trouve " << nbObjetTrouve << std::endl;
+                            chest[k]->setVisible(false);
+
+                }
+        }
+    }
 }

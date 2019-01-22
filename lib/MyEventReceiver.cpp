@@ -85,6 +85,10 @@ bool MyEventReceiver::keyboard(const irr::SEvent &event)
                 window->setVisible(isOpened);
                 isOpened = !isOpened;
                 break;
+            case irr::KEY_KEY_M: // Tourne à gauche
+                std::cout << " j appuie " << std::endl;
+                interact = true;
+                break;
               default:
                 isMoving = 0;
             }
@@ -263,9 +267,19 @@ int MyEventReceiver::applyGainHp(int hp, int hpMax)
 
   hp += gainHp*(float)(hpMax - hp);
   gainHp = 0;
-  std::cout << hp << std::endl;
 
   return hp;
+}
+
+/*===========================================================================*\
+ * get if interaction                                                        *
+\*===========================================================================*/
+bool MyEventReceiver::get_interact()
+{
+  bool interaction = interact;
+  std::cout << "interaction " <<interact << std::endl;
+  interact = false;
+  return interaction;
 }
 
 MyEventReceiver::MyEventReceiver():
