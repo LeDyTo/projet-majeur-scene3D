@@ -175,7 +175,39 @@ bool MyEventReceiver::gui_manage(const irr::SEvent &event)
           {
               start = true;
           }
-        }
+          if (id == ITEM_1)
+          {
+              start = true;
+          }
+          if (id == ITEM_2)
+          {
+              start = true;
+          }
+          if (id == ITEM_3)
+          {
+              start = true;
+          }
+          if (id == ITEM_4)
+          {
+              start = true;
+          }
+          if (id == ITEM_5)
+          {
+              start = true;
+          }
+          if (id == ITEM_6)
+          {
+              start = true;
+          }
+          if (id == ITEM_7)
+          {
+              start = true;
+          }
+          if (id == ITEM_8)
+          {
+              start = true;
+          }
+       }
         break;
         default:
       ;
