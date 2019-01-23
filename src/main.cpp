@@ -272,7 +272,6 @@ int main()
 
     //on teste si le joueur entre en collision avec un des miniboss
     collisionMiniboss = isVersusMiniboss(miniBoss, perso);
-std::cout << cle << std::endl;
 
     if(isOpenedChest)
     {
@@ -523,14 +522,14 @@ inline bool openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshScene
                       ig::IGUIEnvironment *gui, ig::IGUIWindow *window, s32 *idItem, MyEventReceiver receiver,
                       int NbChest, iv::ITexture **items)
 {
-    int epsilon = 10;
+    int epsilon = 70;
     for (unsigned int k = 0; k < NbChest; k++)
     {
         if (chest[k] != NULL && perso != NULL && chest[k]->isVisible()) // pour eviter les erreurs de segmentations
         {
 
                 if (    (core::abs_(perso->getPosition().X - chest[k]->getPosition().X)) <= epsilon
-                        &&   (core::abs_(perso->getPosition().Y - chest[k]->getPosition().Y)) <= epsilon*5
+                        &&   (core::abs_(perso->getPosition().Y - chest[k]->getPosition().Y)) <= epsilon
                         &&   (core::abs_(perso->getPosition().Z - chest[k]->getPosition().Z)) <= epsilon
                         &&   receiver.get_interact() )
 
