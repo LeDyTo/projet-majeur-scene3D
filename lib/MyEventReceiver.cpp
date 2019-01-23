@@ -86,7 +86,6 @@ bool MyEventReceiver::keyboard(const irr::SEvent &event)
                 isOpened = !isOpened;
                 break;
             case irr::KEY_KEY_M: // Tourne à gauche
-                std::cout << " j appuie \n\n\n\n\n\n" << std::endl;
                 interact = true;
                 break;
               default:
@@ -97,7 +96,10 @@ bool MyEventReceiver::keyboard(const irr::SEvent &event)
         }
 
         else if(!event.KeyInput.PressedDown)
+        {
             isMoving = 0;
+            interact = false;
+        }
 
         if (isMoving == 1)
           perso1->setMD2Animation(irr::scene::EMAT_RUN);
@@ -105,6 +107,7 @@ bool MyEventReceiver::keyboard(const irr::SEvent &event)
            perso1->setMD2Animation(irr::scene::EMAT_STAND);
         if (hasJumped == 1)
           perso1->setMD2Animation(irr::scene::EMAT_JUMP);
+
 
     }
 
@@ -277,7 +280,6 @@ int MyEventReceiver::applyGainHp(int hp, int hpMax)
 bool MyEventReceiver::get_interact()
 {
   bool interaction = interact;
-  std::cout << "interaction " <<interact << std::endl;
   interact = false;
   return interaction;
 }

@@ -21,7 +21,12 @@ namespace ig = irr::gui;
 int hp = 89;
 const int hpmax = 200;
 ig::IGUIWindow *window;
+ig::IGUIWindow *windowItem;
 ig::IGUIWindow *ecranTitre;
+int nbObjetTrouve = 0;
+irr::ITimer *Timer;
+u32 itemWinTime;
+
 int W = 1080; int H = 720;
 
 
@@ -39,8 +44,8 @@ inline void title_Screen(is::IMeshSceneNode *node, is::IMeshSceneNode *node2, is
 inline void   parametreChest(is::ISceneManager *smgr, int NbChest, iv::IVideoDriver *driver, is::IAnimatedMeshSceneNode **chest,
                              iv::ITexture **items, s32 *idItem, is::IAnimatedMesh *meshChest);
 
-inline void openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshSceneNode *perso, ig::IGUIButton **itemsButton,
-                      ig::IGUIEnvironment *gui, ig::IGUIWindow *window, s32 *idItem, int nbObjetTrouve, MyEventReceiver receiver,
+inline bool openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshSceneNode *perso, ig::IGUIButton **itemsButton,
+                      ig::IGUIEnvironment *gui, ig::IGUIWindow *window, s32 *idItem, MyEventReceiver receiver,
                       int NbChest, iv::ITexture **items);
 /*===========================================================================*\
  * create_menu                                                               *
@@ -80,6 +85,11 @@ static void create_window(ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver)
     ig::IGUIButton *startButton = gui->addButton(ic::rect<s32>(W/2 - 150, H/2 - 50, W/2 + 150, H/2 + 50), ecranTitre, WINDOW_BUTTON);
     startButton->setUseAlphaChannel(true);startButton->setDrawBorder(false);
     startButton->setImage(start); startButton->setScaleImage(true);
+
+    //fenetre item recupere
+    windowItem = gui->addMessageBox(L"", L"Vous obtenez une potion");
+    windowItem->setVisible(false);
+
 }
 
 
@@ -96,12 +106,11 @@ int main()
     bool isFight = false;
     float randNum;
     bool ScreenChange = false;
+    bool isOpenedChest;
+    bool isWaiting = false;
 
     int NbChest = 7;
     ig::IGUIButton *itemsButton[NbChest+1];
-
-    int nbObjetTrouve = 0;
-    bool objetTrouve = true;
 
 ////numero de frame pour affichage hp///////////
   int nbFrameHp = 60;
@@ -112,7 +121,7 @@ int main()
   IrrlichtDevice *device = createDevice(iv::EDT_OPENGL,
                                         ic::dimension2d<u32>(W, H),
                                         16, false, false, false, &receiver);
-
+  Timer = device->getTimer();
   iv::IVideoDriver  *driver = device->getVideoDriver();
   is::ISceneManager *smgr = device->getSceneManager();
   ig::IGUIEnvironment *gui  = device->getGUIEnvironment();
@@ -245,9 +254,18 @@ int main()
         title_Screen(node, node2, perso, hpBox);
 
 //on verifie si on ouvre un coffre
-    //std::cout<<"test                "<<receiver.get_interact()<<std::endl;
-    openChest(chest, perso,itemsButton, gui, window, idItem, nbObjetTrouve, receiver, NbChest, items);
+    isOpenedChest =  openChest(chest, perso,itemsButton, gui, window, idItem, receiver, NbChest, items);
 
+    if(isOpenedChest)
+    {
+        isWaiting = true;
+    }
+    if(isWaiting)
+        if(Timer->getTime() - itemWinTime>1500)
+        {
+            isWaiting = false;
+            windowItem->setVisible(false);
+        }
 ////combat hasard////////////////////////////////////////
 /////////////////////////////////////////////////////////
 //    if (!isFight && receiver.get_start())
@@ -483,14 +501,14 @@ inline void playVideo(std::vector<iv::ITexture*> frameVector, int nbFrame, ic::r
 /*===========================================================================*\
  * is a chest opening                                                        *
 \*===========================================================================*/
-inline void openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshSceneNode *perso, ig::IGUIButton **itemsButton,
-                      ig::IGUIEnvironment *gui, ig::IGUIWindow *window, s32 *idItem, int nbObjetTrouve, MyEventReceiver receiver,
+inline bool openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshSceneNode *perso, ig::IGUIButton **itemsButton,
+                      ig::IGUIEnvironment *gui, ig::IGUIWindow *window, s32 *idItem, MyEventReceiver receiver,
                       int NbChest, iv::ITexture **items)
 {
     int epsilon = 10;
     for (unsigned int k = 0; k < NbChest; k++)
     {
-        if (chest[k] != NULL && perso != NULL) // pour eviter les erreurs de segmentations
+        if (chest[k] != NULL && perso != NULL && chest[k]->isVisible()) // pour eviter les erreurs de segmentations
         {
 
                 if (    (core::abs_(perso->getPosition().X - chest[k]->getPosition().X)) <= epsilon
@@ -500,8 +518,8 @@ inline void openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshScene
 
                 {
                     //actualisation de l inventaire
-
-                    std::cout << "get interact" << receiver.get_interact() << std::endl;
+                            itemWinTime = Timer->getTime();
+                            windowItem->setVisible(true);
                             int ligne = nbObjetTrouve>3;
                             if (ligne ==0)
                                 itemsButton[nbObjetTrouve] = gui->addButton(ic::rect<s32>((nbObjetTrouve%4)*1060/4 + 10, ligne*620/2 + 45,
@@ -517,8 +535,9 @@ inline void openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshScene
                             nbObjetTrouve++;
                             std::cout << "nbobjet trouve " << nbObjetTrouve << std::endl;
                             chest[k]->setVisible(false);
-
+                            return true;
                 }
         }
     }
+    return false;
 }
