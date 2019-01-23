@@ -47,6 +47,10 @@ inline void   parametreChest(is::ISceneManager *smgr, int NbChest, iv::IVideoDri
 inline bool openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshSceneNode *perso, ig::IGUIButton **itemsButton,
                       ig::IGUIEnvironment *gui, ig::IGUIWindow *window, s32 *idItem, MyEventReceiver receiver,
                       int NbChest, iv::ITexture **items);
+
+inline is::IAnimatedMeshSceneNode** createMiniBoss(iv::IVideoDriver  *driver, is::IAnimatedMesh *mesh,
+                                                   is::ISceneManager *smgr, is::IAnimatedMeshSceneNode** miniBoss);
+
 /*===========================================================================*\
  * create_menu                                                               *
 \*===========================================================================*/
@@ -189,7 +193,7 @@ int main()
   perso->setMD2Animation(is::EMAT_STAND);
   perso->setMaterialTexture(0, driver->getTexture("data/tris/blue_texture.pcx"));
   perso->setRotation(ic::vector3df(0, 90, 0));
-  perso->setPosition(ic::vector3df(1898.98, 450.025, -1539.27));
+  perso->setPosition(ic::vector3df(1290.93, 388.025, -1334.74));
 
   //on set tout ce qui faut pour le receiver
   receiver.set_gui(gui);
@@ -231,6 +235,10 @@ int main()
   iv::ITexture *items[NbChest + 1]; // vecteur texture pour fenetre d inventaire
   s32 idItem[NbChest + 1];
   parametreChest(smgr,NbChest,driver,chest,items, idItem, meshChest);
+
+  is::IAnimatedMeshSceneNode *miniBoss[3];
+  createMiniBoss(driver, mesh, smgr, miniBoss);
+
 
 
 
@@ -540,4 +548,28 @@ inline bool openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshScene
         }
     }
     return false;
+}
+
+
+
+/*===========================================================================*\
+ * creation et positionnnement des miniBoss                                  *
+\*===========================================================================*/
+inline is::IAnimatedMeshSceneNode** createMiniBoss(iv::IVideoDriver  *driver, is::IAnimatedMesh *mesh,
+                                                   is::ISceneManager *smgr, is::IAnimatedMeshSceneNode** miniBoss)
+{
+    for (int k=0; k<3; k++)
+    {
+        miniBoss[k] = smgr->addAnimatedMeshSceneNode(mesh);
+        miniBoss[k]->setMaterialFlag(iv::EMF_LIGHTING, false);
+        miniBoss[k]->setMD2Animation(is::EMAT_STAND);
+        miniBoss[k]->setMaterialTexture(0, driver->getTexture("data/tris/blue_texture.pcx"));
+    }
+    miniBoss[0]->setRotation(ic::vector3df(0, 90, 0));
+    miniBoss[0]->setPosition(ic::vector3df(864.375, 721.751, 132.37));
+
+    miniBoss[1]->setRotation(ic::vector3df(0, 180, 0));
+    miniBoss[1]->setPosition(ic::vector3df(477.741, 609.751, 394.089));
+
+    miniBoss[2]->setPosition(ic::vector3df(1.33853, 977.751, 186.854));
 }
