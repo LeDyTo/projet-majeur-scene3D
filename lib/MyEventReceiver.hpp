@@ -56,6 +56,7 @@ public:
   bool button_pressed;
   int  old_x, old_y;
   float speed = 3;
+  int attackPerso = 2;
 
 
   MyJoystickManager joystick1;

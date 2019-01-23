@@ -277,6 +277,7 @@ int main()
     {
         isWaiting = true;
     }
+
     if(nbObjetTrouve == 7)
     {
         chest[7]->setPosition(ic::vector3df(1287.93, 308.025, -1309.74));
@@ -415,7 +416,7 @@ inline void   parametreChest(is::ISceneManager *smgr, int NbChest, iv::IVideoDri
     items[6] = driver->getTexture("data/potions/grossePotion.png");
     idItem[6] = ITEM_7;
 
-    items[7] = driver->getTexture("data/potions/grossePotion.png");
+    items[7] = driver->getTexture("data/potions/lamesDuChaos.png");
     idItem[7] = ITEM_8;
 
 }

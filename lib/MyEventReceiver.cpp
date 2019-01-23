@@ -220,6 +220,7 @@ bool MyEventReceiver::gui_manage(const irr::SEvent &event)
           if (id == ITEM_8)
           {
               window->getElementFromId(id)->setVisible(false);
+              attackPerso = 3;
           }
        }
         break;
