@@ -277,6 +277,11 @@ int main()
     {
         isWaiting = true;
     }
+    if(nbObjetTrouve == 7)
+    {
+        chest[7]->setPosition(ic::vector3df(1287.93, 308.025, -1309.74));
+    }
+
     if(isWaiting)
         if(Timer->getTime() - itemWinTime>1500)
         {
@@ -354,7 +359,7 @@ inline void   parametreChest(is::ISceneManager *smgr, int NbChest, iv::IVideoDri
                              iv::ITexture **items, s32 *idItem, is::IAnimatedMesh *meshChest)
 
 {
-    for (int k = 0; k < NbChest; k++)
+    for (int k = 0; k < NbChest + 1; k++)
     {
         chest[k] = smgr->addAnimatedMeshSceneNode(meshChest);
         chest[k]->setMaterialFlag(iv::EMF_LIGHTING, false);
@@ -523,7 +528,7 @@ inline bool openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshScene
                       int NbChest, iv::ITexture **items)
 {
     int epsilon = 70;
-    for (unsigned int k = 0; k < NbChest; k++)
+    for (unsigned int k = 0; k < NbChest + 1; k++)
     {
         if (chest[k] != NULL && perso != NULL && chest[k]->isVisible()) // pour eviter les erreurs de segmentations
         {
