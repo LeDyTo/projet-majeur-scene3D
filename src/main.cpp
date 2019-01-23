@@ -26,6 +26,8 @@ ig::IGUIWindow *ecranTitre;
 int nbObjetTrouve = 0;
 irr::ITimer *Timer;
 u32 itemWinTime;
+int cle = 0;
+
 
 int W = 1080; int H = 720;
 
@@ -116,7 +118,6 @@ int main()
     bool isOpenedChest;
     bool collisionMiniboss;
     bool isWaiting = false;
-    int cle = 0;
 
     int NbChest = 7;
     ig::IGUIButton *itemsButton[NbChest+1];
@@ -271,12 +272,7 @@ int main()
 
     //on teste si le joueur entre en collision avec un des miniboss
     collisionMiniboss = isVersusMiniboss(miniBoss, perso);
-
-    if(collisionMiniboss)
-    {
-        ////combat loop avec  miniboss, si on gagne on obtien une des 3 cles pour le boss ultime
-        cle++;
-    }
+std::cout << cle << std::endl;
 
     if(isOpenedChest)
     {
@@ -605,8 +601,14 @@ inline bool isVersusMiniboss(is::IAnimatedMeshSceneNode** miniBoss, is::IAnimate
 
                 {
                     //on entre en collision avec un miniboss
-                            miniBoss[k]->setVisible(false);
-                            return true;
+                    ////combat loop avec  miniboss, si on gagne on obtien une des 3 cles pour le boss ultime
+
+                            if(true) // quand on a gagne le combat
+                            {
+                                cle++;
+                                miniBoss[k]->setVisible(false);
+                                return true;
+                            }
                 }
         }
     }
