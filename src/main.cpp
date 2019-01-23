@@ -51,6 +51,9 @@ inline bool openChest(is::IAnimatedMeshSceneNode **chest, is::IAnimatedMeshScene
 inline is::IAnimatedMeshSceneNode** createMiniBoss(iv::IVideoDriver  *driver, is::IAnimatedMesh *mesh,
                                                    is::ISceneManager *smgr, is::IAnimatedMeshSceneNode** miniBoss);
 
+inline bool isVersusMiniboss(is::IAnimatedMeshSceneNode** miniBoss, is::IAnimatedMeshSceneNode *perso);
+
+
 /*===========================================================================*\
  * create_menu                                                               *
 \*===========================================================================*/
@@ -111,7 +114,9 @@ int main()
     float randNum;
     bool ScreenChange = false;
     bool isOpenedChest;
+    bool collisionMiniboss;
     bool isWaiting = false;
+    int cle = 0;
 
     int NbChest = 7;
     ig::IGUIButton *itemsButton[NbChest+1];
@@ -263,6 +268,15 @@ int main()
 
 //on verifie si on ouvre un coffre
     isOpenedChest =  openChest(chest, perso,itemsButton, gui, window, idItem, receiver, NbChest, items);
+
+    //on teste si le joueur entre en collision avec un des miniboss
+    collisionMiniboss = isVersusMiniboss(miniBoss, perso);
+
+    if(collisionMiniboss)
+    {
+        ////combat loop avec  miniboss, si on gagne on obtien une des 3 cles pour le boss ultime
+        cle++;
+    }
 
     if(isOpenedChest)
     {
@@ -572,4 +586,29 @@ inline is::IAnimatedMeshSceneNode** createMiniBoss(iv::IVideoDriver  *driver, is
     miniBoss[1]->setPosition(ic::vector3df(477.741, 609.751, 394.089));
 
     miniBoss[2]->setPosition(ic::vector3df(1.33853, 977.751, 186.854));
+}
+
+
+
+
+inline bool isVersusMiniboss(is::IAnimatedMeshSceneNode** miniBoss, is::IAnimatedMeshSceneNode *perso)
+{
+    int epsilon = 10;
+    for (unsigned int k = 0; k < 3; k++)
+    {
+        if (miniBoss[k] != NULL && perso != NULL && miniBoss[k]->isVisible()) // pour eviter les erreurs de segmentations
+        {
+
+                if (    (core::abs_(perso->getPosition().X - miniBoss[k]->getPosition().X)) <= epsilon
+                        &&   (core::abs_(perso->getPosition().Y - miniBoss[k]->getPosition().Y)) <= epsilon*5
+                        &&   (core::abs_(perso->getPosition().Z - miniBoss[k]->getPosition().Z)) <= epsilon)
+
+                {
+                    //on entre en collision avec un miniboss
+                            miniBoss[k]->setVisible(false);
+                            return true;
+                }
+        }
+    }
+    return false;
 }
