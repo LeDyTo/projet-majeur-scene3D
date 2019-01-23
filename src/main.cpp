@@ -96,7 +96,9 @@ static void create_window(ig::IGUIEnvironment *gui, iv::IVideoDriver  *driver)
     startButton->setImage(start); startButton->setScaleImage(true);
 
     //fenetre item recupere
-    windowItem = gui->addMessageBox(L"", L"Vous obtenez une potion");
+
+    windowItem = gui->addWindow(ic::rect<s32>(W/2 - 150, H/2 - 50, W/2 + 150, H/2 + 150), false);window->setDraggable(false);window->setDrawTitlebar(false);
+    gui->addMessageBox(L"", L"Vous obtenez une potion", true, 0, windowItem);
     windowItem->setVisible(false);
 
 }
@@ -199,7 +201,7 @@ int main()
   perso->setMD2Animation(is::EMAT_STAND);
   perso->setMaterialTexture(0, driver->getTexture("data/tris/blue_texture.pcx"));
   perso->setRotation(ic::vector3df(0, 90, 0));
-  perso->setPosition(ic::vector3df(1290.93, 388.025, -1334.74));
+  perso->setPosition(ic::vector3df(-1575.2, 21.7512, -230.831));
 
   //on set tout ce qui faut pour le receiver
   receiver.set_gui(gui);
@@ -282,7 +284,24 @@ int main()
     {
         chest[7]->setPosition(ic::vector3df(1287.93, 308.025, -1309.74));
     }
+cle = 3;
 
+    if (cle == 3)
+    {
+        // si le joueur est devant la porte du boss et appuie sur M
+        if(perso->getPosition().X <= -1668.46 && perso->getPosition().X >=-1745.07
+           && perso->getPosition().Y <= 26 && perso->getPosition().Y >= 25
+           && perso->getPosition().Z <= -172.217 && perso->getPosition().Z >=-283.837
+           && receiver.get_interact())
+        {
+            //loop combat contre le boss
+            if(true) //// si on gagne
+            {
+                //fenetre de victoire
+            }
+            exit(0);
+        }
+    }
     if(isWaiting)
         if(Timer->getTime() - itemWinTime>1500)
         {
